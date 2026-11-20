@@ -44,7 +44,11 @@ function appendProviderScript(src, target, { native = false, before = null } = {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = src;
-    script.async = true;
+    // Preserve the supplied snippets' execution modes: Native is async, while
+    // classic banner code is blocking and reads atOptions as soon as it runs.
+    // Dynamically inserted banner scripts with async=false retain ordered
+    // execution while the loader waits for each unit before continuing.
+    script.async = native;
     if (native) script.setAttribute('data-cfasync', 'false');
     script.onload = resolve;
     script.onerror = () => reject(new Error('Approved ad script failed to load.'));
