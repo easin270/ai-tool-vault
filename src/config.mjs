@@ -1,6 +1,6 @@
 export const site = { name: 'AI Tool Vault', url: process.env.SITE_URL || '', contactEmail: process.env.CONTACT_EMAIL || '' };
-// Approved units. Banner snippets may be reused at spaced placements; the
-// vendor's iframe units share a global atOptions and are loaded sequentially.
+// Approved units. Each unit is placed once per page; the vendor's iframe
+// units share a global atOptions and are loaded sequentially.
 // The fixed Native Banner container is limited to one instance per page.
 export const advertising = Object.freeze({
   enabled: true,
