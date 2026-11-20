@@ -11,12 +11,26 @@ function waitForCreative(slot, mount) {
       resolve();
     };
     const populated = () => {
+      const frames = [...mount.querySelectorAll('iframe')];
+      const frameReady = frames.some(frame => {
+        if (frame.getAttribute('src') && frame.getAttribute('src') !== 'about:blank') return true;
+        try { return Boolean(frame.contentDocument?.body?.children.length || frame.contentDocument?.body?.textContent.trim()); }
+        catch { return false; }
+      });
       const content = [...mount.children].filter(child => child.tagName !== 'SCRIPT');
-      return content.some(child => child.matches('iframe,img,video,object,a') || child.querySelector('iframe,img,video,object,a'))
+      return frameReady || content.some(child => child.matches('img,video,object,a') || child.querySelector('img,video,object,a'))
         || mount.textContent.trim().length > 0;
     };
-    const observer = new MutationObserver(() => { if (populated()) finish(true); });
-    observer.observe(mount, { childList: true, subtree: true, characterData: true });
+    const observedFrames = new WeakSet();
+    const observer = new MutationObserver(() => {
+      for (const frame of mount.querySelectorAll('iframe')) {
+        if (observedFrames.has(frame)) continue;
+        observedFrames.add(frame);
+        frame.addEventListener('load', () => { if (populated()) finish(true); });
+      }
+      if (populated()) finish(true);
+    });
+    observer.observe(mount, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['src'] });
     const timer = setTimeout(() => finish(populated()), advertising.timeoutMs);
     if (populated()) finish(true);
   });
