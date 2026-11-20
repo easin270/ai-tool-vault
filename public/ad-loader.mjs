@@ -1,6 +1,6 @@
 import { advertising } from './ad-config.mjs';
 
-function waitForCreative(slot, mount) {
+function waitForCreative(slot, mount, type) {
   let finish;
   const promise = new Promise(resolve => {
     finish = loaded => {
@@ -13,10 +13,13 @@ function waitForCreative(slot, mount) {
     const populated = () => {
       const frames = [...mount.querySelectorAll('iframe')];
       const frameReady = frames.some(frame => {
-        if (frame.getAttribute('src') && frame.getAttribute('src') !== 'about:blank') return true;
-        try { return Boolean(frame.contentDocument?.body?.children.length || frame.contentDocument?.body?.textContent.trim()); }
-        catch { return false; }
+        const source = frame.getAttribute('src');
+        return Boolean(source && source !== 'about:blank');
       });
+      // Adsterra creates an empty about:blank iframe before it has an ad.
+      // Do not mistake that placeholder (or transient fallback markup) for
+      // a banner; keep atOptions unchanged until a real frame URL is assigned.
+      if (type !== 'native') return frameReady;
       const content = [...mount.children].filter(child => child.tagName !== 'SCRIPT');
       return frameReady || content.some(child => child.matches('img,video,object,a') || child.querySelector('img,video,object,a'))
         || mount.textContent.trim().length > 0;
@@ -60,7 +63,7 @@ async function loadUnit(slot, type) {
   if (!mount) { slot.hidden = true; return; }
 
   slot.hidden = false;
-  const rendered = waitForCreative(slot, mount);
+  const rendered = waitForCreative(slot, mount, type);
   try {
     if (type === 'native') {
       await appendProviderScript(unit.src, mount.parentElement, { native: true, before: mount });
