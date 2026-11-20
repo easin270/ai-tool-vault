@@ -1,11 +1,5 @@
 import { advertising } from './ad-config.mjs';
 
-const consentKey = advertising.consentKey;
-const isAccepted = () => {
-  try { return localStorage.getItem(consentKey) === 'accepted'; }
-  catch { return false; }
-};
-
 function waitForCreative(slot, mount) {
   let finish;
   const promise = new Promise(resolve => {
@@ -39,7 +33,6 @@ function appendProviderScript(src, target, { native = false, before = null } = {
 }
 
 async function loadUnit(slot, type) {
-  if (!isAccepted()) return;
   if (type === 'banner728' && !matchMedia('(min-width: 768px)').matches) return;
   if (type === 'banner300' && !matchMedia('(min-width: 340px)').matches) return;
   const unit = advertising.units[type];
@@ -67,7 +60,7 @@ async function loadUnit(slot, type) {
 }
 
 export async function loadApprovedAds() {
-  if (!advertising.enabled || !isAccepted()) return;
+  if (!advertising.enabled) return;
   // Sequential execution prevents the 300×250 and 728×90 snippets from
   // overwriting each other's global atOptions settings.
   for (const slot of document.querySelectorAll('[data-ad-slot]')) {

@@ -4,7 +4,6 @@ export const site = { name: 'AI Tool Vault', url: process.env.SITE_URL || '', co
 // The fixed Native Banner container is limited to one instance per page.
 export const advertising = Object.freeze({
   enabled: true,
-  consentKey: 'ai-tool-vault-ad-consent-v1',
   timeoutMs: 12000,
   units: Object.freeze({
     native: Object.freeze({ src: 'https://bauval.org/21/64b65d6d0319ac6838047615c5ff2c35', containerId: 'container-64b65d6d0319ac6838047615c5ff2c35' }),

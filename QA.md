@@ -45,3 +45,7 @@ This is not an exhaustive cross-browser or assistive-technology audit. Safari/Fi
 The Cloudflare `_headers` file is included, but the simple local server does not apply those headers. Verify deployed CSP and HTTP headers on Cloudflare. Actual CDN behavior, domain/DNS, production 404 status, contact delivery, crawl indexing and third-party product account flows remain unverified until an approved deployment.
 
 Review the notices for the actual owner and hosting practices before launch. The CSP allows only the supplied `bauval.org` host; other verified creative hosts may need specific allowlist entries. Repeated use of a banner code follows the owner's explicit preference, though Adsterra's published guidance recommends distinct codes for placements and warns reuse can affect reporting or delivery. Configure the Adsterra account to exclude adult and unwanted categories; the snippets cannot enforce that setting.
+
+## Automatic advertising update
+
+Removed the consent panel, preference controls and local-storage gating. Ads now start automatically on content pages. The earlier browser observations describe the prior opt-in version. Updated automated checks inspect output without executing provider scripts; actual live creative delivery remains unverified.

@@ -1,10 +1,8 @@
 # Adsterra integration notes
 
-## Switch and visitor choice
+## Automatic loading and master switch
 
-`src/config.mjs` is the single owner-side switch (`advertising.enabled`). When enabled, the generated pages show a non-modal consent panel. The vendor scripts are not requested unless a visitor chooses **Accept ads**. The choice is stored as `ai-tool-vault-ad-consent-v1` in local storage; rejection blocks future loads. The footer's **Ad preferences** control reopens the choice. If the visitor revokes an already active choice, the page reloads so its provider scripts stop running and do not persist into later navigation.
-
-Automated tests inspect configuration and generated markup only. They never import or execute `public/ad-loader.mjs` or request Adsterra endpoints.
+`src/config.mjs` controls advertising with `advertising.enabled`. Approved placements load automatically when a content page opens. There is no Accept ads prompt, preference control or consent storage. The loader skips narrow-screen banner formats and loads classic banners sequentially. Automated tests inspect generated files without executing provider code.
 
 ## Approved placement map
 
@@ -24,16 +22,16 @@ Adsterra's published guidance recommends requesting a unique code for each place
 
 `public/_headers` allows `https://bauval.org` under `script-src`, `frame-src`, `img-src` and `connect-src`, matching the host present in the supplied snippets. Inline `atOptions` blocks are avoided; the local loader assigns the config object instead. No broad `https:` wildcard is added. The exact iframe, tracking and creative hosts used at runtime cannot be inferred from the snippets and were not fetched or executed during tests. A deployed browser may block a creative whose host is outside this allowlist. Inspect Cloudflare CSP reports and obtain Adsterra's current publisher CSP allowlist before adding any further domains. Expanding this policy permits additional third-party code or content and should be limited to verified provider origins.
 
-The provider scripts are privileged third-party JavaScript after a visitor opts in. They can make network requests and may set/read cookies or similar technologies through their ad creatives. The privacy page discloses the potential data shared and visitor choice. The site owner must review the applicable law and the ad network's current terms for the audience and configure the Adsterra account to exclude adult/undesired ad categories. The code snippet cannot enforce creative-category restrictions; this integration does not claim that it can.
+The provider scripts are privileged third-party JavaScript when advertising pages load. They can make network requests and may set/read cookies or similar technologies through their ad creatives. The privacy page discloses the potential data shared and automatic loading. The site owner must review the applicable law and the ad network's current terms for the audience and configure the Adsterra account to exclude adult/undesired ad categories. The code snippet cannot enforce creative-category restrictions; this integration does not claim that it can.
 
 ## Files and verification
 
-- `src/config.mjs`: approved unit IDs, source URLs, banner options, consent key and master switch.
-- `scripts/build.mjs`: creates the shared consent controls, emits the config module and inserts only the three mapped slots.
-- `public/app.mjs`: consent and preference UI; dynamically imports the loader only after opt-in.
+- `src/config.mjs`: approved unit IDs, source URLs, banner options, master switch.
+- `scripts/build.mjs`: emits the config module and inserts the mapped slots.
+- `public/app.mjs`: dynamically imports the loader automatically on pages with ad slots.
 - `public/ad-loader.mjs`: serialized loading, responsive checks and empty/error collapse.
-- `public/ads.css`: labeled reserved slots, mobile rules and consent panel.
+- `public/ads.css`: labeled reserved slots, mobile rules.
 - `public/_headers`: narrow CSP additions for the submitted host.
 - `tests/site.test.mjs`: configuration, IDs, routes, legal-page exclusions and generated output checks; no provider code runs.
 
-Disabling `advertising.enabled` removes slots, consent controls, config output and ad CSS references on the next build.
+Disabling `advertising.enabled` removes slots, config output and ad CSS references on the next build.

@@ -8,14 +8,6 @@
 .ad-slot--banner728 .ad-unit{width:728px;min-height:90px}
 .ad-unit iframe{max-width:100%;border:0}
 .ad-slot--banner728{min-height:144px}
-.ad-preferences{margin:10px 32px 18px auto;display:block;padding:7px 12px;border:1px solid #414a61;border-radius:7px;background:transparent;color:#bdc5d8;font:inherit;font-size:.875rem}
-.ad-preferences:hover{border-color:#a795ff;color:#fff}
-.ad-consent{position:relative;z-index:1;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:24px;width:calc(100% - 32px);max-width:1000px;margin:20px auto;padding:20px 24px;background:#151d30;border:1px solid #8070bf;border-radius:12px;box-shadow:0 12px 48px #0009}
-.ad-consent[hidden]{display:none}
-.ad-consent h2{font-size:1.1rem;margin:0 0 7px}
-.ad-consent p{font-size:.875rem;margin:0;max-width:660px}
-.ad-consent-actions{display:flex;flex:none;gap:10px}
 @media(max-width:767px){.ad-slot--banner728{display:none!important}}
 @media(max-width:339px){.ad-slot--banner300{display:none!important}}
-@media(max-width:640px){.ad-consent{display:block;width:calc(100% - 20px);padding:17px}.ad-consent-actions{margin-top:13px}.ad-consent-actions .button{flex:1}.ad-preferences{margin-right:18px}}
-@media(prefers-reduced-motion:reduce){.ad-slot,.ad-consent{scroll-behavior:auto}}
+

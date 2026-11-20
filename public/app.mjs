@@ -10,25 +10,9 @@ if($('#quiz')){const form=$('#quiz'),steps=[...form.querySelectorAll('fieldset')
 if($('#ideas')){$('#ideas').addEventListener('submit',e=>{e.preventDefault();results($('#idea-results'),Object.fromEntries(new FormData(e.target)),true);});$('#ideas').addEventListener('reset',()=>$('#idea-results').replaceChildren());}
 document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',async()=>{const status=b.closest('article').querySelector('.copy-status');try{await navigator.clipboard.writeText(document.getElementById(b.dataset.copy).textContent);status.textContent='Copied. Make it your own.';}catch{status.textContent='Clipboard unavailable. Select the template text to copy, or use Download .txt.';}}));
 
-// Vendor code is never fetched until the visitor opts in. Provider scripts are
-// loaded by the isolated adapter, one placement at a time.
-if ($('#ad-consent')) {
-  const panel = $('#ad-consent');
-  const consentKey = panel.dataset.consentKey;
-  let loadPromise = null;
-  let adsMayBeRunning = false;
-  const loadAds = () => loadPromise ??= import('./ad-loader.mjs').then(({ loadApprovedAds }) => loadApprovedAds()).catch(() => {
+// Load approved placements automatically on content pages.
+if (document.querySelector('[data-ad-slot]')) {
+  import('./ad-loader.mjs').then(({ loadApprovedAds }) => loadApprovedAds()).catch(() => {
     document.querySelectorAll('[data-ad-slot]').forEach(slot => { slot.hidden = true; });
   });
-  const saved = (() => { try { return localStorage.getItem(consentKey); } catch { return null; } })();
-  if (saved === 'accepted') { adsMayBeRunning = true; loadAds(); }
-  else if (saved !== 'rejected') panel.hidden = false;
-  $('#ad-preferences')?.addEventListener('click', () => { panel.hidden = false; panel.querySelector('[data-ad-choice="reject"]').focus(); });
-  panel.querySelectorAll('[data-ad-choice]').forEach(button => button.addEventListener('click', () => {
-    const choice = button.dataset.adChoice === 'accept' ? 'accepted' : 'rejected';
-    try { localStorage.setItem(consentKey, choice); } catch { /* Page-lifetime choice still applies. */ }
-    panel.hidden = true;
-    if (choice === 'accepted') { adsMayBeRunning = true; loadAds(); }
-    else if (adsMayBeRunning) location.reload();
-  }));
 }
