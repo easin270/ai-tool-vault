@@ -9,3 +9,26 @@ function results(target,answers,ideas=false){target.replaceChildren();target.app
 if($('#quiz')){const form=$('#quiz'),steps=[...form.querySelectorAll('fieldset')];let step=0;const update=(focus=true)=>{steps.forEach((f,i)=>f.hidden=i!==step);$('#quiz-progress').textContent=`Question ${step+1} of 6`;$('progress').value=step+1;$('#quiz-back').hidden=step===0;$('#quiz-next').textContent=step===5?'See my matches':'Continue';if(focus)steps[step].querySelector('legend').focus();};const params=new URLSearchParams(location.search);for(const input of form.querySelectorAll('input'))if(params.get(input.name)===input.value)input.checked=true;$('#quiz-next').addEventListener('click',()=>{if(step<5){step++;update();}else{results($('#quiz-results'),Object.fromEntries(new FormData(form)));form.hidden=true;const restart=node('button','Start again','button');restart.addEventListener('click',()=>form.reset());$('#quiz-results').append(restart);$('#quiz-results').focus();}});$('#quiz-back').addEventListener('click',()=>{step--;update();});form.addEventListener('submit',e=>{e.preventDefault();$('#quiz-next').click();});form.addEventListener('reset',()=>{step=0;form.hidden=false;$('#quiz-results').hidden=true;update();});update(false);}
 if($('#ideas')){$('#ideas').addEventListener('submit',e=>{e.preventDefault();results($('#idea-results'),Object.fromEntries(new FormData(e.target)),true);});$('#ideas').addEventListener('reset',()=>$('#idea-results').replaceChildren());}
 document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',async()=>{const status=b.closest('article').querySelector('.copy-status');try{await navigator.clipboard.writeText(document.getElementById(b.dataset.copy).textContent);status.textContent='Copied. Make it your own.';}catch{status.textContent='Clipboard unavailable. Select the template text to copy, or use Download .txt.';}}));
+
+// Vendor code is never fetched until the visitor opts in. Provider scripts are
+// loaded by the isolated adapter, one placement at a time.
+if ($('#ad-consent')) {
+  const panel = $('#ad-consent');
+  const consentKey = panel.dataset.consentKey;
+  let loadPromise = null;
+  let adsMayBeRunning = false;
+  const loadAds = () => loadPromise ??= import('./ad-loader.mjs').then(({ loadApprovedAds }) => loadApprovedAds()).catch(() => {
+    document.querySelectorAll('[data-ad-slot]').forEach(slot => { slot.hidden = true; });
+  });
+  const saved = (() => { try { return localStorage.getItem(consentKey); } catch { return null; } })();
+  if (saved === 'accepted') { adsMayBeRunning = true; loadAds(); }
+  else if (saved !== 'rejected') panel.hidden = false;
+  $('#ad-preferences')?.addEventListener('click', () => { panel.hidden = false; panel.querySelector('[data-ad-choice="reject"]').focus(); });
+  panel.querySelectorAll('[data-ad-choice]').forEach(button => button.addEventListener('click', () => {
+    const choice = button.dataset.adChoice === 'accept' ? 'accepted' : 'rejected';
+    try { localStorage.setItem(consentKey, choice); } catch { /* Page-lifetime choice still applies. */ }
+    panel.hidden = true;
+    if (choice === 'accepted') { adsMayBeRunning = true; loadAds(); }
+    else if (adsMayBeRunning) location.reload();
+  }));
+}
