@@ -1,0 +1,13 @@
+dist/
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+.cache/
+.npm/
+.vite/
+.wrangler/
+coverage/
+.DS_Store
+Thumbs.db

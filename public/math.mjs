@@ -1,0 +1,21 @@
+export function calculate(type, v) {
+  if (Object.values(v).some(n => !Number.isFinite(n) || n < 0 || n > 1e12)) throw new Error('Enter finite, non-negative numbers no greater than 1 trillion.');
+  switch(type) {
+    case 'freelance-rate': if (!v.hours || !v.weeks) throw new Error('Billable hours and working weeks must be greater than zero.'); return {value:(v.target+v.costs)/(v.hours*v.weeks),label:'Required hourly rate',detail:'(Annual income target + annual business costs) ÷ (weekly billable hours × working weeks). Before tax; non-billable time is excluded.'};
+    case 'side-hustle-income': return {value:v.rate*v.hours*v.weeks-v.costs,label:'Hypothetical monthly surplus',detail:'Hourly rate × paid hours per week × weeks per month − monthly costs. Before tax. Demand and paid hours are not guaranteed.'};
+    case 'savings-goal': {const gap=Math.max(0,v.goal-v.saved); if(gap && !v.monthly) throw new Error('A positive monthly contribution is needed to reach this goal.'); return {value:gap?Math.ceil(gap/v.monthly):0,unit:'months',label:'Time to your goal',detail:'Remaining goal ÷ monthly contribution, rounded up. No interest, inflation or investment returns assumed.'};}
+    case 'monthly-budget': return {value:v.income-v.housing-v.essentials-v.wants-v.savings,label:'Unallocated monthly balance',detail:'Take-home income − housing − other essentials − discretionary spending − savings. A negative value means planned outflows exceed income.'};
+    case 'digital-product-profit': if(v.fee>100) throw new Error('Percentage fees cannot exceed 100%.'); return {value:v.price*v.units*(1-v.fee/100)-v.perSale*v.units-v.fixed,label:'Hypothetical profit',detail:'Price × sales × (1 − percentage fee / 100) − per-sale costs × sales − fixed costs. Before tax; excludes refunds and your unpaid labor.'};
+    case 'time-value': if(!v.hours) throw new Error('Total work hours must be greater than zero.'); return {value:(v.revenue-v.costs)/v.hours,label:'Effective hourly earnings',detail:'(Revenue − business costs) ÷ all work hours, including administration and marketing. Before tax.'};
+    default: throw new Error('Unknown calculator.');
+  }
+}
+export const opportunities = [
+ {name:'Freelance writing & editing',skill:'Writing',style:'Client work',experience:'Some experience',risk:'Low',hours:5,budget:0,slug:'freelancing-for-beginners',first:'Create a before-and-after editing sample and define one fixed-scope offer.',caution:'Finding clients and handling revisions take unpaid time.'},
+ {name:'Digital templates',skill:'Design',style:'Independent',experience:'Beginner',risk:'Medium',hours:5,budget:25,slug:'selling-digital-products',first:'Interview three potential users, then build one narrowly useful template.',caution:'Distribution, licensing and customer support matter as much as design.'},
+ {name:'Research & admin support',skill:'Organization',style:'Client work',experience:'Beginner',risk:'Low',hours:3,budget:0,slug:'ai-assisted-services',first:'Build a source-checked research brief from public information.',caution:'Client confidentiality and factual verification require human review.'},
+ {name:'Educational content',skill:'Teaching',style:'Public audience',experience:'Beginner',risk:'High',hours:8,budget:0,slug:'content-creation',first:'Publish a small series answering a specific audience question.',caution:'Audience building can take months with no income.'},
+ {name:'Workflow setup service',skill:'Technology',style:'Client work',experience:'Experienced',risk:'Medium',hours:6,budget:25,slug:'ai-assisted-services',first:'Map a repetitive task and demonstrate a reversible workflow with test data.',caution:'Maintenance, permissions and errors can create ongoing obligations.'},
+ {name:'Niche comparison publishing',skill:'Writing',style:'Independent',experience:'Some experience',risk:'High',hours:8,budget:50,slug:'affiliate-marketing',first:'Compare tools you have actually evaluated with clear decision criteria.',caution:'Traffic and commissions are uncertain; disclose commercial relationships.'}
+];
+export function recommend(a) {return opportunities.map((o,i)=>({...o,score:(o.skill===a.skill?5:0)+(o.style===a.style?3:0)+(o.hours<=Number(a.hours)?2:-2)+(o.budget<=Number(a.budget)?2:-3)+(o.experience===a.experience?1:0)+(o.risk===a.risk?2:0),order:i})).sort((a,b)=>b.score-a.score||a.order-b.order).slice(0,3);}
