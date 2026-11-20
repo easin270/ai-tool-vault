@@ -10,7 +10,11 @@ function waitForCreative(slot, mount) {
       else slot.hidden = true;
       resolve();
     };
-    const populated = () => mount.childElementCount > 0 || mount.textContent.trim().length > 0;
+    const populated = () => {
+      const content = [...mount.children].filter(child => child.tagName !== 'SCRIPT');
+      return content.some(child => child.matches('iframe,img,video,object,a') || child.querySelector('iframe,img,video,object,a'))
+        || mount.textContent.trim().length > 0;
+    };
     const observer = new MutationObserver(() => { if (populated()) finish(true); });
     observer.observe(mount, { childList: true, subtree: true, characterData: true });
     const timer = setTimeout(() => finish(populated()), advertising.timeoutMs);
